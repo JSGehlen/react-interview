@@ -1,147 +1,104 @@
 import React from 'react';
-import './App.css';
+import useTheme from './components/UseTheme/useTheme'
+import { ThemeProvider, createGlobalStyle } from 'styled-components'
+import style from 'styled-theming'
+import TodoList from './components/TodoList/TodoList'
 
-const todos = [
-    {id: 1, name: 'Go to the supermarket', complete: false},
-    {id: 2, name: 'Call Alice', complete: false},
-    {id: 3, name: 'Ask Alice to call Bob', complete: false},
-    {id: 4, name: 'Do the dishes', complete: false},
-    {id: 5, name: 'Change car tyres', complete: false}
-];
-
-class App extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            newTodoName: '',
-            todos: todos
-        };
-    }
-
-    generateNewId() {
-        return this.state.todos.length + 1;
-    }
-
-    onSubmit(event) {
-        event.preventDefault();
-
-        var newTodos = this.state.todos.slice();
-        newTodos.push({
-            id: this.generateNewId(),
-            name: this.state.newTodoName,
-            complete: false
-        });
-
-        this.setState({todos: newTodos, newTodoName: ''});
-    }
-
-    onClick(id) {
-        var todoItems = this.state.todos.slice();
-        for (let i = 0; i < this.state.todos.length; i++) {
-            if (todoItems[i].id === id) {
-                var newComplete = !todoItems[i].complete;
-                todoItems[i].complete = newComplete;
-            }
-        }
-
-        this.setState({
-            todos: todoItems
-        });
-    }
-
-    onChange(event) {
-        this.setState({newTodoName: event.target.value});
-    }
-    onRemoveClick(id) {
-        //implement this logic
-        console.log('Remove Item!');
-    }
-
-    render() {
-        return (
-            <div className="">
-                {this.todoItems()}
-                <Bar
-                    onSubmit={this.onSubmit.bind(this)}
-                    newTodoName={this.state.newTodoName}
-                    onInputChange={this.onChange.bind(this)}
-                />
+function App() {
+  const theme = useTheme()
+    return (
+      <>
+        <ThemeProvider theme={theme}>
+          <GlobalStyle/>
+            <div className="container">
+              <div className="container__title">
+                <h1>ToDoList</h1>
+              </div>
+              <div className="container__content">
+                <TodoList />
+              </div>
             </div>
-        );
-    }
-
-    todoItems = () => {
-        var retVal = [];
-
-        for (let i = 0; i < this.state.todos.length; i++) {
-            var todo = this.state.todos[i];
-            retVal.push(
-                <Hello
-                    key={todo.id}
-                    todo={todo}
-                    onClick={this.onClick.bind(this)}
-                    onRemoveClick={this.onRemoveClick.bind(this)}
-                />
-            );
-        }
-        return retVal;
-    };
-}
-
-class Hello extends React.Component {
-    render() {
-        var color;
-        var text;
-
-        if (this.props.todo.complete === true) {
-            color = 'lightgreen';
-            text = 'Complete';
-        } else {
-            color = 'pink';
-            text = 'Incomplete';
-        }
-
-        return (
-            <div className="wrapper" style={{backgroundColor: color}}>
-                <h3>{this.props.todo.name}</h3>
-                <button
-                    className="btn"
-                    onClick={() => this.props.onClick(this.props.todo.id)}>
-                    {text}
-                </button>
-                <button
-                    className="btn"
-                    onClick={() =>
-                        this.props.onRemoveClick(this.props.todo.id)
-                    }>
-                    Remove from list
-                </button>
-            </div>
-        );
-    }
-}
-
-class Bar extends React.Component {
-    render() {
-        return (
-            <form
-                className="wrapper"
-                style={{'grid-template-columns': '7fr 2fr'}}
-                onSubmit={this.props.onSubmit}>
-                <input
-                    placeholder="Add new todo"
-                    value={this.props.newTodoName}
-                    onChange={this.props.onInputChange}
-                />
-                <button
-                    className="btn btn-success"
-                    type="submit"
-                    value="Submit">
-                    Submit
-                </button>
-            </form>
-        );
-    }
+        </ThemeProvider>
+      </>
+    );
 }
 
 export default App;
+
+// Styles
+
+const body = style('mode', {
+  light: {
+    color: '#121212',
+    background: '#ffffff'
+  },
+  dark:  {
+    color: '#fff',
+    background: '#243441'
+  }
+})
+
+const shadowTop = style('mode', {
+  light: '#d9d9d9',
+  dark:  '#1c2a34',
+})
+
+const shadowBottom = style('mode', {
+  light: '#ffffff',
+  dark:  '#2a404e',
+})
+
+const container = style('mode', {
+  light: '#ffffff',
+  dark:  '#233541',
+})
+
+const backgroundImage = style('mode', {
+  light: 'https://images.unsplash.com/photo-1551524559-0fd32213ae44?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=701&q=80',
+  dark: 'https://i.pinimg.com/originals/22/85/91/228591b4d875e7a847d6f45856cff4f9.jpg'
+})
+
+const GlobalStyle = createGlobalStyle`
+body {
+  background-color: ${body};
+  color: ${body};
+}
+
+.container {
+  width: 50rem;
+  position: absolute;
+  margin-top: 4rem;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 1.8rem;
+  background: ${container};
+  box-shadow:  7px 7px 20px  ${shadowTop}, 
+              -7px -7px 20px  ${shadowBottom};
+
+  &__title {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    padding: 3rem;
+    height: 10rem;
+    background: url(${backgroundImage});
+    background-size: cover;
+    border-top-left-radius: 1.8rem;
+    border-top-right-radius: 1.8rem;
+    border-bottom-left-radius: 4rem;
+    border-bottom-right-radius: 4rem;
+  }
+
+  &__content {
+    padding: 3rem;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .container {
+    width: auto;
+    margin-top: 0;
+  }
+}
+`
